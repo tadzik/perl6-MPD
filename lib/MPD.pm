@@ -1,0 +1,57 @@
+use v6;
+use NativeCall;
+
+class MPD {
+    has $!conn;
+    method new(Str $host, Int $port) {
+        self.bless(*, :$host, :$port);
+    }
+    method current-song {
+        # TODO: a proper Song object
+        my $s = mpd_run_current_song($!conn);
+        my $ret = mpd_song_get_uri($s);
+        mpd_song_free($s);
+        return $ret;
+    }
+    submethod BUILD(Str $host, Int $port) {
+        $!conn = mpd_connection_new($host, $port);
+        if mpd_connection_get_error($!conn) {
+            die mpd_connection_get_error_message($!conn);
+        }
+    }
+    submethod DESTROY {
+        mpd_connection_free($!obj);
+    }
+}
+
+sub mpd_connection_new(Str $host, Int $port)
+    returns OpaquePointer
+    is native('libmpdclient') { ... }
+
+sub mpd_connection_free(OpaquePointer)
+    is native('libmpdclient') { ... }
+
+sub mpd_connection_get_error(OpaquePointer)
+    returns Int
+    is native('libmpdclient') { ... }
+
+sub mpd_connection_get_error_message(OpaquePointer)
+    returns Str
+    is native('libmpdclient') { ... }
+
+sub mpd_connection_get_server_version(OpaquePointer) # FIXME
+    returns Positional of Int
+    is native('libmpdclient') { ... }
+
+sub mpd_run_current_song(OpaquePointer)
+    returns OpaquePointer
+    is native('libmpdclient') { ... }
+
+sub mpd_song_free(OpaquePointer)
+    is native('libmpdclient') { ... }
+
+sub mpd_song_get_uri(OpaquePointer)
+    returns Str
+    is native('libmpdclient') { ... }
+
+# vim: ft=perl6
