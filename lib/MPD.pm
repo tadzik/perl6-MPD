@@ -9,9 +9,16 @@ class MPD {
     method current-song {
         # TODO: a proper Song object
         my $s = mpd_run_current_song($!conn);
-        my $ret = mpd_song_get_uri($s);
+        my $ret = mpd_song_get_id($s);
+        $ret ~= ": " ~ mpd_song_get_uri($s);
         mpd_song_free($s);
         return $ret;
+    }
+    method state {
+        my $s = mpd_run_status($!conn);
+        my $r = mpd_status_get_state($s);
+        mpd_status_free($s);
+        return <unknown stop play pause>[$r];
     }
     submethod BUILD(Str $host, Int $port) {
         $!conn = mpd_connection_new($host, $port);
@@ -52,6 +59,21 @@ sub mpd_song_free(OpaquePointer)
 
 sub mpd_song_get_uri(OpaquePointer)
     returns Str
+    is native('libmpdclient') { ... }
+
+sub mpd_song_get_id(OpaquePointer)
+    returns Int
+    is native('libmpdclient') { ... }
+
+sub mpd_run_status(OpaquePointer)
+    returns OpaquePointer
+    is native('libmpdclient') { ... }
+
+sub mpd_status_free(OpaquePointer)
+    is native('libmpdclient') { ... }
+
+sub mpd_status_get_state(OpaquePointer)
+    returns Int
     is native('libmpdclient') { ... }
 
 # vim: ft=perl6
