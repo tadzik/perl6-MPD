@@ -4,5 +4,5 @@
     "description" : "Interface to libmpdclient C library",
     "depends"     : [ "NativeCall" ],
     "repo-type"   : "git",
-    "repo-url"    : "git://github.com/tadzik/perl6-mpd.git"
+    "repo-url"    : "git://github.com/tadzik/perl6-MPD.git"
 }
